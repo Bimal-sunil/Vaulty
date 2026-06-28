@@ -1,0 +1,9 @@
+.app {
+  width: 100%;
+  min-height: 100vh;
+  padding: 3rem 20rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
