@@ -20,3 +20,10 @@ export function nextMonthSameDay(day: number) {
 
   return new Date(nextYear, nextMonth, day);
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function findTotalAmount(amounts: number[]): number {
+  return amounts.reduce((total, amount) => {
+    return total + (isNaN(amount) ? 0 : amount);
+  }, 0);
+}

@@ -1,10 +1,4 @@
-import type { CategoryName } from "./types";
-
-export interface CategoryItem {
-  categoryname: CategoryName;
-  color?: string;
-  icon?: string;
-}
+import type { CategoryItem } from "./types";
 
 export const categories: CategoryItem[] = [
   { categoryname: "All" },

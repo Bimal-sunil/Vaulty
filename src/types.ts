@@ -9,6 +9,12 @@ export type CategoryName =
   | "Education"
   | "Other";
 
+export interface CategoryItem {
+  categoryname: CategoryName;
+  color?: string;
+  icon?: string;
+}
+
 type BaseSubscription = {
   subscriptionName: string;
   categoryName: CategoryName;

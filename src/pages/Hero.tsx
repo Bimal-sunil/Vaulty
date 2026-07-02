@@ -1,23 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Button from "../components/Button";
-import { formatDate } from "../helper";
+import { findTotalAmount, formatDate } from "../helper";
 import Card from "../components/Card";
 import { categories } from "../data";
 import Chip from "../components/Chip";
 import SubscriptionCard from "../components/SubscriptionCard";
 import { supabase } from "../../utils/supabase";
 import { useNavigate } from "react-router-dom";
+import type { CategoryName } from "../types";
 
 function Hero() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryName>("All");
   const fetchSubscriptionData = async () => {
     const { data, error } = await supabase.from("Subscriptions").select();
     if (error) {
       console.error("Error fetching subscription data:", error);
-    } else {
-      setSubscriptions(data);
+      return;
     }
+    setSubscriptions(data);
   };
 
   useEffect(() => {
@@ -27,6 +29,13 @@ function Hero() {
 
     loadSubscriptionData();
   }, []);
+
+  const visibleSubscriptions = useMemo(() => {
+    if (selectedCategory === "All") return subscriptions;
+    return subscriptions.filter(
+      (sub) => sub["category_name"] === selectedCategory,
+    );
+  }, [subscriptions, selectedCategory]);
 
   const navigate = useNavigate();
 
@@ -52,23 +61,31 @@ function Hero() {
         <div className="w-fit grid grid-cols-3 gap-[3rem] place-items-center">
           <Card
             title="Monthly"
-            content="₹976"
+            content={`₹${findTotalAmount(subscriptions.map((sub) => (sub["frequency"] === "Monthly" ? sub["amount"] : 0)))}`}
             description="across 4 subscriptions,"
           />
+          {/*TODO: Add proper calculation for yearly estimate*/}
           <Card
             title="Yearly Est."
-            content="₹11716"
+            content={`₹${findTotalAmount(subscriptions.map((sub) => (sub["frequency"] === "Monthly" ? sub["amount"] * 12 : sub["frequency"] === "Yearly" ? sub["amount"] : 0)))}`}
             description="at current spend"
           />
           <Card title="Renewing Soon" content="2" description="within 7 days" />
         </div>
         <div className="flex items-center gap-[1rem]">
           {categories.map((category) => (
-            <Chip key={category.categoryname} label={category.categoryname} />
+            <Chip
+              key={category.categoryname}
+              label={category.categoryname}
+              onClick={() => {
+                setSelectedCategory(category.categoryname);
+              }}
+              selected={selectedCategory === category.categoryname}
+            />
           ))}
         </div>
         <div className="flex flex-col gap-[1.5rem] w-full">
-          {subscriptions.map((subscription) => (
+          {visibleSubscriptions.map((subscription) => (
             <SubscriptionCard
               id={subscription["id"]}
               key={subscription["id"]}
